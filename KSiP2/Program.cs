@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace KSiP2
 {
@@ -13,15 +14,17 @@ namespace KSiP2
 
             var rawText = Text.RawText;
             
-            var key = "Жидачів";
+            var key = "Жидачівщина";
 
-            var encryptedText = Encryption(rawText, key);
+            //var encryptedText = Encryption(rawText, key);
 
-            Console.WriteLine(encryptedText + "\n\n");
-            Console.WriteLine(Decryption(encryptedText, key));
+            //Console.WriteLine(encryptedText + "\n\n");
+           // Console.WriteLine(Decryption(encryptedText, key));
+            Console.WriteLine(Kasiski(rawText));
 
         }
 
+        #region Encryption
         static string Encryption(string rawText, string key)
         {
             var encryptedText = "";
@@ -50,7 +53,9 @@ namespace KSiP2
 
             return encryptedText;
         }
+        #endregion
 
+        #region Decryption
         static string Decryption(string encryptedText, string key)
         {
             var decryptedText = "";
@@ -86,18 +91,58 @@ namespace KSiP2
 
             return decryptedText;
         }
-
+        #endregion
 
         #region Kasiski
-        static List<int> Kasiski(string encryptedText)
+        static string Kasiski(string startText)
         {
             var setsDictionary = new Dictionary<string, List<int>>();
-            var indexOfFinding = new List<int>();
+            
             var setFromText = "";
+            var set = "";
+            var encryptedText = "";
 
+            foreach (var symbol in startText)
+            {
+                if (Alphabet.IndexOf(symbol) != -1)
+                {
+                    encryptedText += symbol;
+                }
+            }
 
+            for (int i = 2; i < encryptedText.Length / 2; i++)
+            {
+                for (int j = 0; j < encryptedText.Length-i+1; j++)
+                {
+                    set = encryptedText.Substring(j, i);
+                    //Console.WriteLine($"{i} : {j} : {set}");
 
-            return indexOfFinding;
+                    if (setsDictionary.ContainsKey(set))
+                    {
+                        setsDictionary[set].Add(j);
+                        //Console.WriteLine("Added");
+                    }
+                    else
+                    {
+                        var indexOfFinding = new List<int>() { j };
+                        setsDictionary.Add(set, indexOfFinding);
+                        //Console.WriteLine("Added new");
+                    }
+                }
+            }
+
+            foreach (var item in setsDictionary)
+            {
+                if (item.Value.Count > 1) Console.WriteLine($"{item.Key} : {item.Value.Count}");
+            }
+
+            #region Linq
+            var mostCommon = setsDictionary.OrderByDescending(el => el.Value.Count > 2);
+
+            Console.WriteLine("");
+            //return mostCommon.ToString();
+            #endregion
+            return "";
         }
         #endregion
     }
